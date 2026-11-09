@@ -1,0 +1,1 @@
+SELECT t.id, t.quantity + COALESCE((SELECT SUM(d.delta) FROM scheduled_quantity_deltas d WHERE d.company_id = 1 AND d.inventory_id = t.id AND d.date <= '2027-12-31'), 0) FROM (SELECT id, quantity FROM inventory WHERE company_id = 1 ORDER BY id LIMIT 50 OFFSET 0) t ORDER BY t.id;

@@ -1,0 +1,35 @@
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.84..882.32 rows=50 width=44) (actual time=0.489..20.162 rows=50 loops=1)
+   Buffers: shared hit=1111
+   ->  Limit  (cost=0.42..2.07 rows=50 width=8) (actual time=0.034..0.054 rows=50 loops=1)
+         Buffers: shared hit=7
+         ->  Index Only Scan using idx_inventory_company_id on inventory  (cost=0.42..6578.43 rows=199658 width=8) (actual time=0.033..0.046 rows=50 loops=1)
+               Index Cond: (company_id = 1)
+               Heap Fetches: 0
+               Buffers: shared hit=7
+   ->  Index Scan using inventory_pkey on inventory t  (cost=0.42..8.36 rows=1 width=12) (actual time=0.001..0.001 rows=1 loops=50)
+         Index Cond: (id = inventory.id)
+         Buffers: shared hit=200
+   SubPlan 1
+     ->  Aggregate  (cost=4.62..4.63 rows=1 width=32) (actual time=0.187..0.187 rows=1 loops=50)
+           Buffers: shared hit=452
+           ->  Index Only Scan using idx_pi_pending on purchase_item pi  (cost=0.43..4.60 rows=4 width=5) (actual time=0.005..0.116 rows=900 loops=50)
+                 Index Cond: ((company_id = 1) AND (inventory_id = t.id) AND (scheduled_date <= '2027-12-31'::date))
+                 Filter: (status = ANY ('{0,1}'::integer[]))
+                 Heap Fetches: 0
+                 Buffers: shared hit=452
+   SubPlan 2
+     ->  Aggregate  (cost=4.61..4.62 rows=1 width=32) (actual time=0.210..0.210 rows=1 loops=50)
+           Buffers: shared hit=452
+           ->  Index Only Scan using idx_di_pending on delivery_item di  (cost=0.43..4.60 rows=1 width=5) (actual time=0.006..0.131 rows=1000 loops=50)
+                 Index Cond: ((company_id = 1) AND (inventory_id = t.id))
+                 Filter: ((status = ANY ('{0,1}'::integer[])) AND ((scheduled_date <= '2027-12-31'::date) OR (scheduled_date IS NULL)))
+                 Heap Fetches: 0
+                 Buffers: shared hit=452
+ Planning:
+   Buffers: shared hit=294
+ Planning Time: 1.121 ms
+ Execution Time: 20.238 ms
+(31 rows)
+

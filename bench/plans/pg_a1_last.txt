@@ -1,0 +1,22 @@
+Index Scan using inventory_pkey on inventory t  (cost=0.42..591.90 rows=40 width=40) (actual time=0.472..38.444 rows=50 loops=1)
+  Index Cond: (id = ANY ('{199951,199952,199953,199954,199955,199956,199957,199958,199959,199960,199961,199962,199963,199964,199965,199966,199967,199968,199969,199970,199971,199972,199973,199974,199975,199976,199977,199978,199979,199980,199981,199982,199983,199984,199985,199986,199987,199988,199989,199990,199991,199992,199993,199994,199995,199996,199997,199998,199999,200000}'::bigint[]))
+  Filter: (company_id = 1)
+  Buffers: shared hit=1055
+  SubPlan 1
+    ->  Aggregate  (cost=4.62..4.63 rows=1 width=32) (actual time=0.366..0.366 rows=1 loops=50)
+          Buffers: shared hit=452
+          ->  Index Only Scan using idx_pi_pending on purchase_item pi  (cost=0.43..4.60 rows=4 width=5) (actual time=0.007..0.221 rows=901 loops=50)
+                Index Cond: ((company_id = 1) AND (inventory_id = t.id) AND (scheduled_date <= '2027-12-31'::date))
+                Filter: (status = ANY ('{0,1}'::integer[]))
+                Heap Fetches: 0
+                Buffers: shared hit=452
+  SubPlan 2
+    ->  Aggregate  (cost=4.61..4.62 rows=1 width=32) (actual time=0.395..0.396 rows=1 loops=50)
+          Buffers: shared hit=452
+          ->  Index Only Scan using idx_di_pending on delivery_item di  (cost=0.43..4.60 rows=1 width=5) (actual time=0.009..0.255 rows=1000 loops=50)
+                Index Cond: ((company_id = 1) AND (inventory_id = t.id))
+                Filter: ((status = ANY ('{0,1}'::integer[])) AND ((scheduled_date <= '2027-12-31'::date) OR (scheduled_date IS NULL)))
+                Heap Fetches: 0
+                Buffers: shared hit=452
+Planning Time: 0.264 ms
+Execution Time: 38.504 ms
